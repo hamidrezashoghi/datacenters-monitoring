@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"log"
+	"net/http"
 )
 
 const (
@@ -38,10 +41,39 @@ const (
 )
 
 var data_dict map[string]string
-var datatcenters = [...]string{"mci", "mci-mashhad", "mci-tabriz", "mci-esfehan", "mci-shiraz", "afranet", "irancell", "mobinnet", "shatel"}
+var datacenters = []string{"mci", "mci-mashhad", "mci-tabriz", "mci-esfehan", "mci-shiraz", "afranet", "irancell", "mobinnet", "shatel"}
 
 func main() {
 	// now := time.Now()
+	url := ""
+	for _, isp := range datacenters {
+		url = "https://radar.arvancloud.com/api/v1/internet-monitoring?isp=" + isp
+		fmt.Println(isp)
+		fmt.Println(getJSON(url))
+	}
+}
 
-	fmt.Println(len(data_dict))
+func getJSON(url string) interface{} {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return fmt.Errorf("can't fetch URL %q: %v", url, err)
+	}
+
+	req.Header.Set("Accept", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	defer resp.Body.Close()
+
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	return string(b)
+
 }

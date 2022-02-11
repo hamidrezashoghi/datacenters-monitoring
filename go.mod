@@ -1,5 +1,3 @@
-module github.com/hamidrezashoghi/go-1322
+module github.com/hamidrezashoghi/datacenters-monitoring
 
-go 1.16
-
-require github.com/prometheus/alertmanager v0.23.0 // indirect
+go 1.17

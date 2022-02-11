@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/hamidrezashoghi/datacenters-monitoring/internal/config"
 )
 
 type websiteCounters struct {
@@ -37,25 +39,12 @@ var website websites
 func main() {
 	const waitTime = 5
 	url := ""
-	var datacenters = []string{"mci", "mci-mashhad", "mci-tabriz", "mci-esfehan", "mci-shiraz", "afranet", "irancell", "mobinnet", "shatel"}
-
-	// Keep datacenters state
-	type dc_states struct {
-		mci_tehran  int
-		mci_mashhad int
-		mci_tabriz  int
-		mci_esfehan int
-		mci_shiraz  int
-		afranet     int
-		irancell    int
-		mobinnet    int
-		shatel      int
-	}
+	var datacenters = []string{"mci", "mci-mashhad", "mci-tabriz", "mci-esfehan", "mci-shiraz", "afranet", "irancell", "mobinnet"} // , "shatel"}
 
 	for {
 		current_time := time.Now()
 		var websiteCounter websiteCounters
-		var dc_state dc_states
+		dcState := config.New()
 		var dc_info = make(map[string]float64)
 
 		for _, dc := range datacenters {
@@ -79,79 +68,78 @@ func main() {
 
 		for k, v := range dc_info {
 			if strings.Contains(k, "mci-tehran") && v == 0.5 {
-				dc_state.mci_tehran += 1
-				if dc_state.mci_tehran >= 4 {
+				dcState.MCITehran += 1
+				if dcState.MCITehran >= 4 {
 					// send_alert("Tehran MCI data center", 1, 0, 0)
 					fmt.Println(current_time.String() + " Based on radar.arvan.com Tehran MCI data center has problem.")
 				}
 			}
 
 			if strings.Contains(k, "mci-mashhad") && v == 0.5 {
-				dc_state.mci_mashhad += 1
-				if dc_state.mci_mashhad >= 4 {
+				dcState.MCIMashhad += 1
+				if dcState.MCIMashhad >= 4 {
 					// send_alert("Mashhad MCI data center", 1, 0, 0)
 					fmt.Println(current_time.String() + " Based on radar.arvan.com Mashhad MCI data center has problem.")
 				}
 			}
 
 			if strings.Contains(k, "mci-tabriz") && v == 0.5 {
-				dc_state.mci_tabriz += 1
-				if dc_state.mci_tabriz >= 4 {
+				dcState.MCITabriz += 1
+				if dcState.MCITabriz >= 4 {
 					// send_alert("Tabriz MCI data center", 1, 0, 0)
 					fmt.Println(current_time.String() + " Based on radar.arvan.com Tabriz MCI data center has problem.")
 				}
 			}
 
 			if strings.Contains(k, "mci-esfehan") && v == 0.5 {
-				dc_state.mci_esfehan += 1
-				if dc_state.mci_esfehan >= 4 {
+				dcState.MCIEsfehan += 1
+				if dcState.MCIEsfehan >= 4 {
 					// send_alert("Esfehan MCI data center", 1, 0, 0)
 					fmt.Println(current_time.String() + " Based on radar.arvan.com Esfehan MCI data center has problem.")
 				}
 			}
 
 			if strings.Contains(k, "mci-shiraz") && v == 0.5 {
-				dc_state.mci_shiraz += 1
-				if dc_state.mci_shiraz >= 4 {
+				dcState.MCIShiraz += 1
+				if dcState.MCIShiraz >= 4 {
 					// send_alert("Shiraz MCI data center", 1, 0, 0)
 					fmt.Println(current_time.String() + " Based on radar.arvan.com Shiraz MCI data center has problem.")
 				}
 			}
 
 			if strings.Contains(k, "afranet") && v == 0.5 {
-				dc_state.afranet += 1
-				if dc_state.afranet >= 4 {
+				dcState.Afranet += 1
+				if dcState.Afranet >= 4 {
 					// send_alert("Afranet data center", 1, 0, 0)
 					fmt.Println(current_time.String() + " Based on radar.arvan.com Afranet data center has problem.")
 				}
 			}
 
 			if strings.Contains(k, "irancell") && v == 0.5 {
-				dc_state.irancell += 1
-				if dc_state.irancell >= 4 {
+				dcState.Irancell += 1
+				if dcState.Irancell >= 4 {
 					// send_alert("Irancell data center", 1, 0, 0)
 					fmt.Println(current_time.String() + " Based on radar.arvan.com Irancell data center has problem.")
 				}
 			}
 
 			if strings.Contains(k, "mobinnet") && v == 0.5 {
-				dc_state.mobinnet += 1
-				if dc_state.mobinnet >= 4 {
+				dcState.Mobinnet += 1
+				if dcState.Mobinnet >= 4 {
 					// send_alert("Mobinnet data center", 1, 0, 0)
 					fmt.Println(current_time.String() + " Based on radar.arvan.com Mobinnet data center has problem.")
 				}
 			}
 
 			if strings.Contains(k, "shatel") && v == 0.5 {
-				dc_state.shatel += 1
-				if dc_state.shatel >= 4 {
+				dcState.Shatel += 1
+				if dcState.Shatel >= 4 {
 					// send_alert("Shatel data center", 1, 0, 0)
 					fmt.Println(k, v)
 					fmt.Println(current_time.String() + " Based on radar.arvan.com Shatel data center has problem.")
 				}
 			}
 		}
-
 		time.Sleep(waitTime * time.Second)
 	}
 }

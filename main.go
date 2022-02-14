@@ -3,12 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
-	"net/http"
 	"strings"
 	"time"
 
+	"github.com/go-resty/resty/v2"
 	"github.com/hamidrezashoghi/datacenters-monitoring/internal/config"
 )
 
@@ -39,7 +38,7 @@ var website websites
 func main() {
 	const waitTime = 5
 	url := ""
-	var datacenters = []string{"mci", "mci-mashhad", "mci-tabriz", "mci-esfehan", "mci-shiraz", "afranet", "irancell", "mobinnet"} // , "shatel"}
+	var datacenters = []string{"mci", "mci-mashhad", "mci-tabriz", "mci-esfehan", "mci-shiraz", "afranet", "irancell", "mobinnet"} //, "shatel"}
 
 	for {
 		current_time := time.Now()
@@ -147,27 +146,36 @@ func main() {
 // getJson get one before the last value (real value is -2 in the slice)
 func getJson(url string) (string, error) {
 	var err error
-	req, err := http.NewRequest("GET", url, nil)
+	client := resty.New()
+
+	resp, err := client.R().SetHeader("Content-Type", "application/json").Get(url)
 	if err != nil {
-		return "", fmt.Errorf("can't fetch URL %q: %v", url, err)
+		return "", fmt.Errorf("%q: %v", url, err)
 	}
 
-	req.Header.Set("Accept", "application/json")
+	return resp.String(), err
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("%v", err)
-	}
+	// req, err := http.NewRequest("GET", url, nil)
+	// if err != nil {
+	// 	return "", fmt.Errorf("can't fetch URL %q: %v", url, err)
+	// }
 
-	defer resp.Body.Close()
+	// req.Header.Set("Accept", "application/json")
 
-	b, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("%v", err)
-	}
+	// client := &http.Client{}
+	// resp, err := client.Do(req)
+	// if err != nil {
+	// 	return "", fmt.Errorf("%v", err)
+	// }
 
-	return string(b), err
+	// defer resp.Body.Close()
+
+	// b, err := io.ReadAll(resp.Body)
+	// if err != nil {
+	// 	return "", fmt.Errorf("%v", err)
+	// }
+
+	// return string(b), err
 
 }
 
@@ -228,34 +236,34 @@ func (wC websiteCounters) networkChecker(current_time time.Time) {
 	// Intranet has problem - if 3 ISP have problem
 	if (wC.Aparat >= 3) && (wC.Varzesh3 >= 3) && (wC.Digikala >= 3) {
 		//send_alert('', 0, 1, 0)
-		fmt.Println(fmt.Sprintf("%s Based on radar.arvan.com interanet has problem.", current_time.String()))
+		fmt.Printf("%s Based on radar.arvan.com interanet has problem.\n", current_time.String())
 	}
 
 	// Internet has problem - if 4 data centers have problem
 	// I show local timezone because prmotheus use utc timezone
 	if (wC.Instagram >= 4) && (wC.Google >= 4) && (wC.Github >= 4) {
-		fmt.Println(fmt.Sprintf("%s Based on radar.arvan.com internet has problem.", current_time.String()))
+		fmt.Printf("%s Based on radar.arvan.com internet has problem.", current_time.String())
 		// send_alert('', 0, 0, 1)
 	} else if (wC.Instagram >= 4) && (wC.Google >= 4) && (wC.Clubhouse >= 4) {
-		fmt.Println(fmt.Sprintf("%s Based on radar.arvan.com internet has problem.", current_time.String()))
+		fmt.Printf("%s Based on radar.arvan.com internet has problem.", current_time.String())
 		// send_alert('', 0, 0, 1)
 	} else if (wC.Instagram >= 4) && (wC.Github >= 4) && (wC.Clubhouse >= 4) {
 		// send_alert('', 0, 0, 1)
-		fmt.Println(fmt.Sprintf("%s Based on radar.arvan.com internet has problem.", current_time.String()))
+		fmt.Printf("%s Based on radar.arvan.com internet has problem.", current_time.String())
 	} else if (wC.Instagram >= 4) && (wC.Github >= 4) && (wC.Wikipedia >= 4) {
 		// send_alert('', 0, 0, 1)
-		fmt.Println(fmt.Sprintf("%s Based on radar.arvan.com internet has problem.", current_time.String()))
+		fmt.Printf("%s Based on radar.arvan.com internet has problem.", current_time.String())
 	} else if (wC.Instagram >= 4) && (wC.Google >= 4) && (wC.Wikipedia >= 4) {
 		// send_alert('', 0, 0, 1)
-		fmt.Println(fmt.Sprintf("%s Based on radar.arvan.com internet has problem.", current_time.String()))
+		fmt.Printf("%s Based on radar.arvan.com internet has problem.", current_time.String())
 	} else if (wC.Instagram >= 4) && (wC.Clubhouse >= 4) && (wC.Wikipedia >= 4) {
 		// send_alert('', 0, 0, 1)
-		fmt.Println(fmt.Sprintf("%s Based on radar.arvan.com internet has problem.", current_time.String()))
+		fmt.Printf("%s Based on radar.arvan.com internet has problem.", current_time.String())
 	} else if (wC.Google >= 4) && (wC.Github >= 4) && (wC.Clubhouse >= 4) {
 		// send_alert('', 0, 0, 1)
-		fmt.Println(fmt.Sprintf("%s Based on radar.arvan.com internet has problem.", current_time.String()))
+		fmt.Printf("%s Based on radar.arvan.com internet has problem.", current_time.String())
 	} else if (wC.Google >= 4) && (wC.Github >= 4) && (wC.Wikipedia >= 4) {
 		// send_alert('', 0, 0, 1)
-		fmt.Println(fmt.Sprintf("%s Based on radar.arvan.com internet has problem.", current_time.String()))
+		fmt.Printf("%s Based on radar.arvan.com internet has problem.", current_time.String())
 	}
 }
